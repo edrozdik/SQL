@@ -23,77 +23,77 @@ ___
 SELECT first_name, last_name, network_username  
 FROM people  
 WHERE network_username LIKE 'Silver%';  
-
+___
 5. Выведите на экран всю информацию о людях, у которых названия аккаунтов в поле network_username содержат подстроку 'money', а фамилия начинается на 'K'.  
 
 SELECT *  
 FROM people  
 WHERE network_username LIKE '%money%' AND last_name LIKE 'K%';  
-
+___
 6. Для каждой страны отобразите общую сумму привлечённых инвестиций, которые получили компании, зарегистрированные в этой стране. Страну, в которой зарегистрирована компания, можно   определить по коду страны. Отсортируйте данные по убыванию суммы.  
 
 SELECT country_code, SUM(funding_total) AS total_funding  
 FROM company  
 GROUP BY country_code  
 ORDER BY total_funding DESC;  
-
+___
 7. Составьте таблицу, в которую войдёт дата проведения раунда, а также минимальное и максимальное значения суммы инвестиций, привлечённых в эту дату.  
-Оставьте в итоговой таблице только те записи, в которых минимальное значение суммы инвестиций не равно нулю и не равно максимальному значению.  
+Оставьте в итоговой таблице только те записи, в которых минимальное значение суммы инвестиций не равно нулю и не равно максимальному значению.    
 
-SELECT funded_at, MIN(raised_amount) AS min_investment, MAX(raised_amount) AS max_investment  
+SELECT funded_at, MIN(raised_amount) AS min_investment, MAX(raised_amount) AS max_investment    
 FROM funding_round  
 GROUP BY funded_at  
 HAVING MIN(raised_amount) != 0 AND MIN(raised_amount) != MAX(raised_amount);  
+___
+8. Создайте поле с категориями:  
+Для фондов, которые инвестируют в 100 и более компаний, назначьте категорию high_activity.  
+Для фондов, которые инвестируют в 20 и более компаний до 100, назначьте категорию middle_activity.  
+Если количество инвестируемых компаний фонда не достигает 20, назначьте категорию low_activity.  
+Отобразите все поля таблицы fund и новое поле с категориями.  
 
-8. Создайте поле с категориями:
-Для фондов, которые инвестируют в 100 и более компаний, назначьте категорию high_activity.
-Для фондов, которые инвестируют в 20 и более компаний до 100, назначьте категорию middle_activity.
-Если количество инвестируемых компаний фонда не достигает 20, назначьте категорию low_activity.
-Отобразите все поля таблицы fund и новое поле с категориями.
+SELECT *,  
+       CASE  
+           WHEN invested_companies >= 100 THEN 'high_activity'  
+           WHEN invested_companies >= 20 THEN 'middle_activity'  
+           ELSE 'low_activity'  
+       END AS activity_category  
+FROM fund;  
+___
+9. Для каждой из категорий, назначенных в предыдущем задании, посчитайте округлённое до ближайшего целого числа среднее количество инвестиционных раундов, в которых фонд принимал участие. Выведите на экран категории и среднее число инвестиционных раундов. Отсортируйте таблицу по возрастанию среднего.  
 
-SELECT *,
-       CASE
-           WHEN invested_companies >= 100 THEN 'high_activity'
-           WHEN invested_companies >= 20 THEN 'middle_activity'
-           ELSE 'low_activity'
-       END AS activity_category
-FROM fund;
-
-9. Для каждой из категорий, назначенных в предыдущем задании, посчитайте округлённое до ближайшего целого числа среднее количество инвестиционных раундов, в которых фонд принимал участие. Выведите на экран категории и среднее число инвестиционных раундов. Отсортируйте таблицу по возрастанию среднего.
-
-SELECT 
-    CASE
-        WHEN invested_companies >= 100 THEN 'high_activity'
-        WHEN invested_companies >= 20 THEN 'middle_activity'
-        ELSE 'low_activity'
-    END AS activity_category,
-    ROUND(AVG(investment_rounds)) AS average_investment_rounds
-FROM fund
-GROUP BY activity_category
-ORDER BY average_investment_rounds ASC;
-
-10. Проанализируйте, в каких странах находятся фонды, которые чаще всего инвестируют в стартапы. 
-Для каждой страны посчитайте минимальное, максимальное и среднее число компаний, в которые инвестировали фонды этой страны, основанные с 2010 по 2012 год включительно. Исключите страны с фондами, у которых минимальное число компаний, получивших инвестиции, равно нулю. 
+SELECT   
+    CASE  
+        WHEN invested_companies >= 100 THEN 'high_activity'  
+        WHEN invested_companies >= 20 THEN 'middle_activity'  
+        ELSE 'low_activity'  
+    END AS activity_category,  
+    ROUND(AVG(investment_rounds)) AS average_investment_rounds  
+FROM fund  
+GROUP BY activity_category  
+ORDER BY average_investment_rounds ASC;  
+___
+10. Проанализируйте, в каких странах находятся фонды, которые чаще всего инвестируют в стартапы.   
+Для каждой страны посчитайте минимальное, максимальное и среднее число компаний, в которые инвестировали фонды этой страны, основанные с 2010 по 2012 год включительно. Исключите страны с фондами, у которых минимальное число компаний, получивших инвестиции, равно нулю.   
 Выгрузите десять самых активных стран-инвесторов: отсортируйте таблицу по среднему количеству компаний от большего к меньшему. Затем добавьте сортировку по коду страны в лексикографическом порядке.
 
-SELECT 
-    country_code,
-    MIN(invested_companies) AS min_invested_companies,
-    MAX(invested_companies) AS max_invested_companies,
-    AVG(invested_companies) AS avg_invested_companies
-FROM 
-    fund
-WHERE 
-    founded_at BETWEEN '2010-01-01' AND '2012-12-31'
-GROUP BY 
-    country_code
-HAVING 
-    MIN(invested_companies) > 0
-ORDER BY 
-    avg_invested_companies DESC,
-    country_code ASC
-LIMIT 10;
-
+SELECT   
+    country_code,  
+    MIN(invested_companies) AS min_invested_companies,  
+    MAX(invested_companies) AS max_invested_companies,  
+    AVG(invested_companies) AS avg_invested_companies  
+FROM   
+    fund  
+WHERE   
+    founded_at BETWEEN '2010-01-01' AND '2012-12-31'  
+GROUP BY   
+    country_code  
+HAVING   
+    MIN(invested_companies) > 0  
+ORDER BY   
+    avg_invested_companies DESC,  
+    country_code ASC  
+LIMIT 10;  
+___
 11. Отобразите имя и фамилию всех сотрудников стартапов. Добавьте поле с названием учебного заведения, которое окончил сотрудник, если эта информация известна.
 
 SELECT 
