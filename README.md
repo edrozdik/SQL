@@ -1,23 +1,23 @@
 1.	Отобразите все записи из таблицы company по компаниям, которые закрылись.  
-___
+
 SELECT *  
 FROM company  
 WHERE status = 'closed';  
-
+___
 2. Отобразите количество привлечённых средств для новостных компаний США. Используйте данные из таблицы company. Отсортируйте таблицу по убыванию значений в поле funding_total.    
 
 SELECT funding_total   
 FROM company  
 WHERE category_code = 'news' AND country_code = 'USA'  
 ORDER BY funding_total DESC;  
-
+___
 3. Найдите общую сумму сделок по покупке одних компаний другими в долларах. Отберите сделки, которые осуществлялись только за наличные с 2011 по 2013 год включительно.    
 
 SELECT SUM(price_amount) AS total_cash_acquisitions  
 FROM acquisition  
 WHERE term_code = 'cash'   
   AND EXTRACT(YEAR FROM acquired_at) BETWEEN 2011 AND 2013;  
-
+___
 4. Отобразите имя, фамилию и названия аккаунтов людей в поле network_username, у которых названия аккаунтов начинаются на 'Silver'.  
 
 SELECT first_name, last_name, network_username  
